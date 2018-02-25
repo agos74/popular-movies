@@ -7,6 +7,7 @@ package com.udacity.popularmovies.utilities;
 import android.net.Uri;
 
 import com.udacity.popularmovies.BuildConfig;
+import com.udacity.popularmovies.MainActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,16 +16,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
+
 /**
  * These utilities will be used to communicate with the network.
  */
 public class NetworkUtils {
 
+
     private static final String THEMOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
 
     /* The sort type we want our API to return */
-    private static final String POPULAR_KEY = "p";
-    private static final String TOP_RATED_KEY = "t";
     private static final String POPULAR_ENDPOINT = "popular";
     private static final String TOP_RATED_ENDPOINT = "top_rated";
 
@@ -41,10 +42,10 @@ public class NetworkUtils {
     public static URL buildUrl(String sortType) {
         String endPoint;
         switch (sortType) {
-            case POPULAR_KEY:
+            case MainActivity.MOST_POPULAR_ORDER_KEY:
                 endPoint = POPULAR_ENDPOINT;
                 break;
-            case TOP_RATED_KEY:
+            case MainActivity.TOP_RATED_ORDER_KEY:
                 endPoint = TOP_RATED_ENDPOINT;
                 break;
             default:

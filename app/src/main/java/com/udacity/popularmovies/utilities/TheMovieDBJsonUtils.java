@@ -17,7 +17,12 @@ import java.net.HttpURLConnection;
 
 public class TheMovieDBJsonUtils {
 
+    public static final String TMDB_POSTER_PATH = "http://image.tmdb.org/t/p/";
+    public static final String TMDB_POSTER_WIDTH_MEDIUM = "w185/";
+    public static final String TMDB_POSTER_WIDTH_LARGE = "w342/";
+
     public static Movie[] parseMoviesJson(String moviesJsonStr) throws JSONException {
+
 
         /* Movies information. Each movie is an element of the "results" array */
         final String TMDB_RESULTS = "results";
@@ -90,7 +95,7 @@ public class TheMovieDBJsonUtils {
             movies[i] = movie;
 
             //for debug purpose
-            Log.d("Movie", movie.toString());
+//            Log.d("Movie", movie.toString());
 
         }
 

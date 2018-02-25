@@ -1,9 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.udacity.popularmovies.DetailActivity">
+    android:orientation="vertical">
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:id="@+id/title_tv"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:text="Title"
+        android:textSize="25sp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/title_tv"
+        android:fillViewport="false"
+        android:orientation="vertical">
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp"
+            tools:context="com.udacity.popularmovies.DetailActivity">
+
+            <LinearLayout
+                android:id="@+id/layout_first_row"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/poster_iv"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/movie_poster_content_description" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="@dimen/activity_horizontal_margin">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingTop="@dimen/activity_vertical_margin">
+
+                        <TextView
+                            android:id="@+id/release_date_label"
+                            android:layout_width="110dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/detail_release_date_label"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/release_date_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/release_date_label"
+                            android:text="2015-02-12" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="@dimen/activity_vertical_margin">
+
+                        <TextView
+                            android:id="@+id/rating_label"
+                            android:layout_width="110dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/detail_rating_label"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/rating_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/rating_label"
+                            android:text="6.1/10" />
+                    </RelativeLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/plot_synopsis_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/layout_first_row"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:text="Descrizione" />
+
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

@@ -10,17 +10,64 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 import com.udacity.popularmovies.model.Movie;
+import com.udacity.popularmovies.utilities.TheMovieDBJsonUtils;
 
 /**
  * Created by Agostino on 21/02/2018.
  */
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieAdapterViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
 
-
-    private static final String TMDB_POSTER_PATH = "http://image.tmdb.org/t/p/w185/";
 
     private Movie[] mMoviesData;
+
+    /**
+     * An on-click handler that we've defined to make it easy for an Activity to interface with
+     * our RecyclerView
+     */
+    private final MovieAdapterOnClickHandler mClickHandler;
+
+    /**
+     * The interface that receives onClick messages.
+     */
+    public interface MovieAdapterOnClickHandler {
+        void onClick(Movie movie);
+    }
+
+    /**
+     * Creates a MovieAdapter.
+     *
+     * @param clickHandler The on-click handler for this adapter. This single handler is called
+     *                     when an item is clicked.
+     */
+    public MovieAdapter(MovieAdapterOnClickHandler clickHandler) {
+        mClickHandler = clickHandler;
+    }
+
+    /**
+     * Cache of the children views for a movie grid item.
+     */
+    public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public final ImageView mMovieImageView;
+
+        public MovieAdapterViewHolder(View view) {
+            super(view);
+            mMovieImageView = view.findViewById(R.id.iv_movie);
+            view.setOnClickListener(this);
+        }
+
+        /**
+         * This gets called by the child views during a click.
+         *
+         * @param v The View that was clicked
+         */
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            Movie movie = mMoviesData[adapterPosition];
+            mClickHandler.onClick(movie);
+        }
+    }
 
     /**
      * This gets called when each new ViewHolder is created. This happens when the RecyclerView
@@ -29,7 +76,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieAdapt
      * @return A new MovieAdapterViewHolder that holds the View for each list item
      */
     @Override
-    public MoviesAdapter.MovieAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MovieAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         int layoutIdForListItem = R.layout.movie_grid_item;
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -46,14 +93,17 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieAdapt
      * passed into us.
      */
     @Override
-    public void onBindViewHolder(MoviesAdapter.MovieAdapterViewHolder holder, int position) {
+    public void onBindViewHolder(MovieAdapterViewHolder holder, int position) {
         Movie movieForThisPosition = mMoviesData[position];
 
-        Uri imgUri = Uri.parse(TMDB_POSTER_PATH).buildUpon()
+        Uri imgUri = Uri.parse(TheMovieDBJsonUtils.TMDB_POSTER_PATH).buildUpon()
+                .appendEncodedPath(TheMovieDBJsonUtils.TMDB_POSTER_WIDTH_MEDIUM)
                 .appendEncodedPath(movieForThisPosition.getPoster())
                 .build();
 
         Picasso.with(holder.mMovieImageView.getContext()).load(imgUri).into(holder.mMovieImageView);
+
+        holder.mMovieImageView.setContentDescription(movieForThisPosition.getTitle());
     }
 
     @Override
@@ -62,20 +112,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieAdapt
         return mMoviesData.length;
     }
 
-    public class MovieAdapterViewHolder extends RecyclerView.ViewHolder {
-
-        public final ImageView mMovieImageView;
-
-        public MovieAdapterViewHolder(View itemView) {
-            super(itemView);
-            mMovieImageView = itemView.findViewById(R.id.iv_movie);
-        }
-    }
-
     /**
-     * This method is used to set the movie on a MoviesAdapter if we've already
+     * This method is used to set the movie on a MovieAdapter if we've already
      * created one. This is handy when we get new data from the web but don't want to create a
-     * new MoviesAdapter to display it.
+     * new MovieAdapter to display it.
      *
      * @param moviesData The new movies data to be displayed.
      */
