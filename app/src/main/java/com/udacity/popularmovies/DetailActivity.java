@@ -2,8 +2,11 @@ package com.udacity.popularmovies;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,12 +37,20 @@ public class DetailActivity extends AppCompatActivity {
 
         populateUI(movie);
 
+        ActionBar actionBar = this.getSupportActionBar();
+
+        // Set the action bar back button to look like an up button
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
     }
 
     private void populateUI(Movie movie) {
 
         ImageView mPosterIv = findViewById(R.id.poster_iv);
         TextView mTitleTv = findViewById(R.id.title_tv);
+        TextView mOriginalTitleTv = findViewById(R.id.original_title_tv);
         TextView mReleaseDateTv = findViewById(R.id.release_date_tv);
         TextView mRatingTv = findViewById(R.id.rating_tv);
         TextView mPlotSynopsisTv = findViewById(R.id.plot_synopsis_tv);
@@ -54,6 +65,7 @@ public class DetailActivity extends AppCompatActivity {
         mPosterIv.setContentDescription(movie.getTitle());
 
         mTitleTv.setText(movie.getTitle());
+        mOriginalTitleTv.setText(movie.getOriginalTitle());
         mReleaseDateTv.setText(movie.getReleaseDate());
         String rating = movie.getRating().concat("/10");
         mRatingTv.setText(rating);
@@ -64,6 +76,19 @@ public class DetailActivity extends AppCompatActivity {
     private void closeOnError() {
         finish();
         Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        // When the home button is pressed, take the user back to the Main Activity
+        switch (id) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

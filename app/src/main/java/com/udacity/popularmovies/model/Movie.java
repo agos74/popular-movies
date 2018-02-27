@@ -9,22 +9,28 @@ import android.os.Parcelable;
 
 public class Movie implements Parcelable {
 
+    private String id;
     private String title;
+    private String originalTitle;
     private String poster;
     private String plotSynopsis;
     private String rating;
     private String releaseDate;
 
-    public Movie(String title, String poster, String plotSynopsis, String rating, String releaseDate) {
+    public Movie(String id, String title, String originalTitle, String poster, String plotSynopsis, String rating, String releaseDate) {
+        this.id = id;
         this.title = title;
+        this.originalTitle = originalTitle;
         this.poster = poster;
         this.plotSynopsis = plotSynopsis;
         this.rating = rating;
         this.releaseDate = releaseDate;
     }
 
-    protected Movie(Parcel in) {
+    private Movie(Parcel in) {
+        id = in.readString();
         title = in.readString();
+        originalTitle = in.readString();
         poster = in.readString();
         plotSynopsis = in.readString();
         rating = in.readString();
@@ -44,7 +50,15 @@ public class Movie implements Parcelable {
     };
 
     public Movie() {
-        
+
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -53,6 +67,14 @@ public class Movie implements Parcelable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getOriginalTitle() {
+        return originalTitle;
+    }
+
+    public void setOriginalTitle(String originalTitle) {
+        this.originalTitle = originalTitle;
     }
 
     public String getPoster() {
@@ -90,7 +112,9 @@ public class Movie implements Parcelable {
     @Override //for debug purpose
     public String toString() {
         return "Movie{" +
-                "title='" + title + '\'' +
+                "id='" + title + '\'' +
+                ", title='" + title + '\'' +
+                ", originalTitle='" + originalTitle + '\'' +
                 ", poster='" + poster + '\'' +
                 ", plotSynopsis='" + plotSynopsis + '\'' +
                 ", rating='" + rating + '\'' +
@@ -105,7 +129,9 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(title);
+        dest.writeString(originalTitle);
         dest.writeString(poster);
         dest.writeString(plotSynopsis);
         dest.writeString(rating);

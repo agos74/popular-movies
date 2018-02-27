@@ -27,7 +27,9 @@ public class TheMovieDBJsonUtils {
         /* Movies information. Each movie is an element of the "results" array */
         final String TMDB_RESULTS = "results";
 
+        final String TMDB_ID = "id";
         final String TMDB_TITLE = "title";
+        final String TMDB_ORIGINAL_TITLE = "original_title";
         final String TMDB_POSTER = "poster_path";
         final String TMDB_PLOT_SYNOPSIS = "overview";
         final String TMDB_RATING = "vote_average";
@@ -71,8 +73,16 @@ public class TheMovieDBJsonUtils {
             /* Get the JSON object representing the movie */
             JSONObject movieJson = moviesArray.getJSONObject(i);
 
+            if (movieJson.has(TMDB_ID)) {
+                movie.setTitle(movieJson.optString(TMDB_ID));
+            }
+
             if (movieJson.has(TMDB_TITLE)) {
                 movie.setTitle(movieJson.optString(TMDB_TITLE));
+            }
+
+            if (movieJson.has(TMDB_ORIGINAL_TITLE)) {
+                movie.setOriginalTitle(movieJson.optString(TMDB_ORIGINAL_TITLE));
             }
 
             if (movieJson.has(TMDB_POSTER)) {

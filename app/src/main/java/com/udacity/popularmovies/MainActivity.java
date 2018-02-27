@@ -2,6 +2,7 @@ package com.udacity.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,6 +37,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private ProgressBar mLoadingIndicator;
 
+    private static final String ORDER_TYPE_TEXT_KEY = "order_type";
+
+    private String mOrderType = MOST_POPULAR_ORDER_KEY;
+
     private static final int MOVIES_LOADER_ID = 0;
 
     @Override
@@ -51,7 +56,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
          /*
          * GridLayoutManager to show the movie posters in grid of 2 columns
          */
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
+        GridLayoutManager layoutManager;
+        if (super.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            layoutManager = new GridLayoutManager(this, 2);
+        } else {
+            layoutManager = new GridLayoutManager(this, 4);
+        }
         /* Set the layoutManager on mRecyclerView */
         mRecyclerView.setLayoutManager(layoutManager);
 
@@ -73,8 +83,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
          */
         mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
 
+
+        //If savedInstanceState is not null and contains ORDER_TYPE_TEXT_KEY, set mOrderType with the value
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(ORDER_TYPE_TEXT_KEY)) {
+                String orderTypeSaved = savedInstanceState
+                        .getString(ORDER_TYPE_TEXT_KEY);
+                mOrderType = orderTypeSaved;
+            }
+        }
+
         /* Once all of our views are setup, we can load the movies. */
-        loadMovies(MOST_POPULAR_ORDER_KEY);
+        loadMovies(mOrderType);
 
     }
 
@@ -204,6 +224,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mMovieAdapter.setMoviesData(null);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Put the order type in the outState bundle
+        outState.putString(ORDER_TYPE_TEXT_KEY, mOrderType);
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -219,19 +246,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_sort_order_popular) {
-            invalidateData();
-            loadMovies(MOST_POPULAR_ORDER_KEY);
-            return true;
+        switch (id) {
+            case R.id.action_sort_order_popular:
+                mOrderType = MOST_POPULAR_ORDER_KEY;
+                break;
+            case R.id.action_sort_order_rated:
+                mOrderType = TOP_RATED_ORDER_KEY;
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
-        if (id == R.id.action_sort_order_rated) {
-            invalidateData();
-            loadMovies(TOP_RATED_ORDER_KEY);
-            return true;
-        }
+        invalidateData();
+        loadMovies(mOrderType);
+        return true;
 
-        return super.onOptionsItemSelected(item);
     }
 
 
