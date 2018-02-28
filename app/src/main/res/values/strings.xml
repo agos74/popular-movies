@@ -2,7 +2,7 @@
     <string name="app_name">Popular Movies</string>
     <!-- Error messages-->
     <string name="error_message">
-        An error has occurred. Please try again choosing movies order type
+        An error has occurred. Please check your internet connection and try again
     </string>
     <string name="detail_error_message">Movie data not available</string>
 
@@ -16,7 +16,8 @@
     <string name="detail_rating_label">Rating</string>
     <string name="detail_plot_synopsis_label">Plot synopsis</string>
 
-        <!-- Content descriptions-->
+    <!-- Content descriptions-->
     <string name="movie_poster_content_description">Movie Poster picture</string>
+    <string name="retry">Retry</string>
 
 </resources>

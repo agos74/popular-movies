@@ -8,17 +8,32 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent" />
 
-    <TextView
-        android:id="@+id/tv_error_message_display"
+    <LinearLayout
+        android:id="@+id/layout_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="@string/error_message"
-        android:textSize="20sp"
-        android:visibility="invisible" />
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="@string/error_message"
+            android:textSize="20sp"
+            android:visibility="visible" />
+
+        <Button
+            android:id="@+id/retry_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/retry"></Button>
+
+    </LinearLayout>
+
 
     <ProgressBar
         android:id="@+id/pb_loading_indicator"

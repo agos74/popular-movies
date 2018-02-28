@@ -10,6 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Agostino on 22/02/2018.
@@ -21,7 +23,7 @@ public class TheMovieDBJsonUtils {
     public static final String TMDB_POSTER_WIDTH_MEDIUM = "w185/";
     public static final String TMDB_POSTER_WIDTH_LARGE = "w342/";
 
-    public static Movie[] parseMoviesJson(String moviesJsonStr) throws JSONException {
+    public static List<Movie> parseMoviesJson(String moviesJsonStr) throws JSONException {
 
 
         /* Movies information. Each movie is an element of the "results" array */
@@ -38,8 +40,8 @@ public class TheMovieDBJsonUtils {
         //error message code
         final String TMDB_MESSAGE_CODE = "cod";
 
-        /* Movie array to hold movies */
-        Movie[] movies = null;
+        /* Movies List to hold movies */
+        List<Movie> moviesList = new ArrayList<>();
 
         JSONObject moviesJson = new JSONObject(moviesJsonStr);
 
@@ -63,8 +65,6 @@ public class TheMovieDBJsonUtils {
         }
 
         JSONArray moviesArray = moviesJson.getJSONArray(TMDB_RESULTS);
-
-        movies = new Movie[moviesArray.length()];
 
         for (int i = 0; i < moviesArray.length(); i++) {
 
@@ -102,7 +102,7 @@ public class TheMovieDBJsonUtils {
             }
 
 
-            movies[i] = movie;
+            moviesList.add(movie);
 
             //for debug purpose
 //            Log.d("Movie", movie.toString());
@@ -110,7 +110,7 @@ public class TheMovieDBJsonUtils {
         }
 
 
-        return movies;
+        return moviesList;
     }
 
 }

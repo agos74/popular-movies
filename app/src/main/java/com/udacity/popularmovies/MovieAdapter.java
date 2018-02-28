@@ -12,6 +12,9 @@ import com.squareup.picasso.Picasso;
 import com.udacity.popularmovies.model.Movie;
 import com.udacity.popularmovies.utilities.TheMovieDBJsonUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Agostino on 21/02/2018.
  */
@@ -19,7 +22,7 @@ import com.udacity.popularmovies.utilities.TheMovieDBJsonUtils;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
 
 
-    private Movie[] mMoviesData;
+    private List<Movie> mMoviesList = new ArrayList<>();
 
     /**
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -64,7 +67,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            Movie movie = mMoviesData[adapterPosition];
+            Movie movie = mMoviesList.get(adapterPosition);
             mClickHandler.onClick(movie);
         }
     }
@@ -94,7 +97,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      */
     @Override
     public void onBindViewHolder(MovieAdapterViewHolder holder, int position) {
-        Movie movieForThisPosition = mMoviesData[position];
+        Movie movieForThisPosition = mMoviesList.get(position);
 
         Uri imgUri = Uri.parse(TheMovieDBJsonUtils.TMDB_POSTER_PATH).buildUpon()
                 .appendEncodedPath(TheMovieDBJsonUtils.TMDB_POSTER_WIDTH_MEDIUM)
@@ -108,8 +111,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     @Override
     public int getItemCount() {
-        if (null == mMoviesData) return 0;
-        return mMoviesData.length;
+        return (mMoviesList == null) ? 0 : mMoviesList.size();
     }
 
     /**
@@ -117,10 +119,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      * created one. This is handy when we get new data from the web but don't want to create a
      * new MovieAdapter to display it.
      *
-     * @param moviesData The new movies data to be displayed.
+     * @param moviesList The new movies list to be displayed.
      */
-    public void setMoviesData(Movie[] moviesData) {
-        mMoviesData = moviesData;
+    public void setMoviesList(List<Movie> moviesList) {
+        mMoviesList = moviesList;
         notifyDataSetChanged();
     }
 

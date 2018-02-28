@@ -12,14 +12,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.udacity.popularmovies.model.Movie;
 import com.udacity.popularmovies.utilities.NetworkUtils;
 import com.udacity.popularmovies.utilities.TheMovieDBJsonUtils;
 
 import java.net.URL;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private MovieAdapter mMovieAdapter;
 
-    private TextView mErrorMessageDisplay;
+    private LinearLayout mErrorLayout;
 
     private ProgressBar mLoadingIndicator;
 
@@ -50,11 +52,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         mRecyclerView = findViewById(R.id.recyclerview_main);
 
-        /* This TextView is used to display errors and will be hidden if there are no errors */
-        mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
+        /* This Layout with TextView and Button is used to display errors and will be hidden if there are no errors */
+        mErrorLayout = findViewById(R.id.layout_error);
+
+        /*
+         * The ProgressBar that will indicate to the user that we are loading data. It will be
+         * hidden when no data is loading.
+         */
+        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
 
          /*
-         * GridLayoutManager to show the movie posters in grid of 2 columns
+         * GridLayoutManager to show the movie posters in grid of 2 or 4 columns
          */
         GridLayoutManager layoutManager;
         if (super.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -62,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         } else {
             layoutManager = new GridLayoutManager(this, 4);
         }
+
         /* Set the layoutManager on mRecyclerView */
         mRecyclerView.setLayoutManager(layoutManager);
 
@@ -77,12 +86,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         /* attaches adapter to the RecyclerView in layout. */
         mRecyclerView.setAdapter(mMovieAdapter);
 
-         /*
-         * The ProgressBar that will indicate to the user that we are loading data. It will be
-         * hidden when no data is loading.
-         */
-        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
-
 
         //If savedInstanceState is not null and contains ORDER_TYPE_TEXT_KEY, set mOrderType with the value
         if (savedInstanceState != null) {
@@ -92,6 +95,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 mOrderType = orderTypeSaved;
             }
         }
+
+        final Button button = findViewById(R.id.retry_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                loadMovies(mOrderType);
+            }
+        });
+
 
         /* Once all of our views are setup, we can load the movies. */
         loadMovies(mOrderType);
@@ -149,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      */
     private void showMoviesDataView() {
         /* First, make sure the error is invisible */
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+        mErrorLayout.setVisibility(View.INVISIBLE);
         // Show mRecyclerView, not mMovieImageView
         mRecyclerView.setVisibility(View.VISIBLE);
     }
@@ -166,10 +177,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         /* First, hide the currently visible data */
         mRecyclerView.setVisibility(View.INVISIBLE);
         /* Then, show the error */
-        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+        mErrorLayout.setVisibility(View.VISIBLE);
     }
 
-    public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
+    public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
         @Override
         protected void onPreExecute() {
@@ -178,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         @Override
-        protected Movie[] doInBackground(String... params) {
+        protected List<Movie> doInBackground(String... params) {
 
 //          If there's no orderType, there's nothing to look up. */
             if (params.length == 0) {
@@ -192,9 +203,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 String jsonMoviesResponse = NetworkUtils
                         .getResponseFromHttpUrl(moviesRequestUrl);
 
-                Movie[] moviesData = TheMovieDBJsonUtils.parseMoviesJson(jsonMoviesResponse);
+                List<Movie> moviesList = TheMovieDBJsonUtils.parseMoviesJson(jsonMoviesResponse);
 
-                return moviesData;
+                return moviesList;
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -204,12 +215,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         @Override
-        protected void onPostExecute(Movie[] moviesData) {
+        protected void onPostExecute(List<Movie> moviesList) {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (moviesData != null) {
+            if (moviesList != null) {
                 showMoviesDataView();
-                // Instead of iterating through every movie, use mMovieAdapter.setMoviesData and pass in the movies data
-                mMovieAdapter.setMoviesData(moviesData);
+                // Instead of iterating through every movie, use mMovieAdapter.setMoviesList and pass in the movies List
+                mMovieAdapter.setMoviesList(moviesList);
             } else {
                 showErrorMessage();
             }
@@ -221,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      * refresh of our data, you can see that there is no data showing.
      */
     private void invalidateData() {
-        mMovieAdapter.setMoviesData(null);
+        mMovieAdapter.setMoviesList(null);
     }
 
     @Override
