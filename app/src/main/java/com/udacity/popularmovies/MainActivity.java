@@ -3,7 +3,9 @@ package com.udacity.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -23,13 +25,13 @@ import com.udacity.popularmovies.utilities.TheMovieDBJsonUtils;
 import java.net.URL;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<List<Movie>> {
 
     public static final String MOST_POPULAR_ORDER_KEY = "p";
     public static final String TOP_RATED_ORDER_KEY = "t";
 
     private static final String MOST_POPULAR_TITLE = "Most Popular Movies";
-    private static final String TOP_RATED_TITLE = "Top Rated Movies";
+    private static final String TOP_RATED_TITLE = "Highest Rated Movies";
 
     private RecyclerView mRecyclerView;
 
@@ -90,49 +92,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         //If savedInstanceState is not null and contains ORDER_TYPE_TEXT_KEY, set mOrderType with the value
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(ORDER_TYPE_TEXT_KEY)) {
-                String orderTypeSaved = savedInstanceState
+                mOrderType = savedInstanceState
                         .getString(ORDER_TYPE_TEXT_KEY);
-                mOrderType = orderTypeSaved;
             }
         }
 
         final Button button = findViewById(R.id.retry_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                loadMovies(mOrderType);
+                getSupportLoaderManager().restartLoader(MOVIES_LOADER_ID, null, MainActivity.this);
             }
         });
 
 
-        /* Once all of our views are setup, we can load the movies. */
-        loadMovies(mOrderType);
+        // Initialize the AsyncTaskLoader
+        getSupportLoaderManager().initLoader(MOVIES_LOADER_ID, null, MainActivity.this);
 
     }
 
-    /**
-     * This method will get the user's preferred order for movies, and then tell some
-     * background method to get the movies data in the background.
-     */
-    private void loadMovies(String orderType) {
-        showMoviesDataView();
-
-        //String orderType = PopularMoviePreferences.getPreferredOrderType(this);
-        new FetchMoviesTask().execute(orderType);
-
-        //Set Activity Title
-        String title;
-        switch (orderType) {
-            case MainActivity.MOST_POPULAR_ORDER_KEY:
-                title = MOST_POPULAR_TITLE;
-                break;
-            case MainActivity.TOP_RATED_ORDER_KEY:
-                title = TOP_RATED_TITLE;
-                break;
-            default:
-                title = getString(R.string.app_name);
-        }
-        this.setTitle(title);
-    }
 
     /**
      * This method is overridden by our MainActivity class in order to handle RecyclerView item
@@ -180,60 +157,106 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorLayout.setVisibility(View.VISIBLE);
     }
 
-    public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
+    @Override
+    public Loader<List<Movie>> onCreateLoader(int id, Bundle args) {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+        return new AsyncTaskLoader<List<Movie>>(this) {
 
-        @Override
-        protected List<Movie> doInBackground(String... params) {
+            List<Movie> mMoviesList = null;
 
-//          If there's no orderType, there's nothing to look up. */
-            if (params.length == 0) {
-                return null;
+            @Override
+            protected void onStartLoading() {
+                if (mMoviesList != null) {
+                    deliverResult(mMoviesList);
+                } else {
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
+
             }
 
-            String orderType = params[0];
-            URL moviesRequestUrl = NetworkUtils.buildUrl(orderType);
+            @Override
+            public List<Movie> loadInBackground() {
 
-            try {
-                String jsonMoviesResponse = NetworkUtils
-                        .getResponseFromHttpUrl(moviesRequestUrl);
+                String orderType = mOrderType;
+                URL moviesRequestUrl = NetworkUtils.buildUrl(orderType);
 
-                List<Movie> moviesList = TheMovieDBJsonUtils.parseMoviesJson(jsonMoviesResponse);
+                try {
+                    String jsonMoviesResponse = NetworkUtils
+                            .getResponseFromHttpUrl(moviesRequestUrl);
 
-                return moviesList;
+                    List<Movie> moviesList = TheMovieDBJsonUtils.parseMoviesJson(jsonMoviesResponse);
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+                    return moviesList;
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
 
+            /**
+             * Sends the result of the load to the registered listener.
+             *
+             * @param moviesList The result of the load
+             */
+            public void deliverResult(List<Movie> moviesList) {
+                mMoviesList = moviesList;
+                super.deliverResult(moviesList);
+            }
+
+        };
+
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> moviesList) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if (moviesList != null) {
+            showMoviesDataView();
+            // Instead of iterating through every movie, use mMovieAdapter.setMoviesList and pass in the movies List
+            mMovieAdapter.setMoviesList(moviesList);
+        } else {
+            showErrorMessage();
         }
 
-        @Override
-        protected void onPostExecute(List<Movie> moviesList) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (moviesList != null) {
-                showMoviesDataView();
-                // Instead of iterating through every movie, use mMovieAdapter.setMoviesList and pass in the movies List
-                mMovieAdapter.setMoviesList(moviesList);
-            } else {
-                showErrorMessage();
-            }
-        }
+        setActivityTitle();
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Movie>> loader) {
+
     }
 
     /**
      * This method is used when we are resetting data, so that at one point in time during a
      * refresh of our data, you can see that there is no data showing.
      */
+
     private void invalidateData() {
         mMovieAdapter.setMoviesList(null);
     }
+
+    private void setActivityTitle() {
+
+        //Set Activity Title
+        String title;
+        switch (mOrderType) {
+            case MainActivity.MOST_POPULAR_ORDER_KEY:
+                title = MOST_POPULAR_TITLE;
+                break;
+            case MainActivity.TOP_RATED_ORDER_KEY:
+                title = TOP_RATED_TITLE;
+                break;
+            default:
+                title = getString(R.string.app_name);
+        }
+        this.setTitle(title);
+
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -269,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         invalidateData();
-        loadMovies(mOrderType);
+        getSupportLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
         return true;
 
     }

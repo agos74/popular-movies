@@ -7,7 +7,7 @@
     <string name="detail_error_message">Movie data not available</string>
 
     <string name="action_sort_order_popular">Most Popular</string>
-    <string name="action_sort_order_rated">Top Rated</string>
+    <string name="action_sort_order_rated">Highest Rated</string>
 
     <!-- Detail Activity-->
     <string name="detail_title_label">Title</string>

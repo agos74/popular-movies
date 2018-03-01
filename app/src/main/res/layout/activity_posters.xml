@@ -15,15 +15,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="invisible">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:text="@string/error_message"
-            android:textSize="20sp"
-            android:visibility="visible" />
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/retry_button"
